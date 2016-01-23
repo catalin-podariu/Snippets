@@ -19,6 +19,9 @@ public class Validate {
     private Pattern portPattern;
     private Matcher matchPort;
 
+    private Pattern emailPattern;
+    private Matcher matchEmail;
+
     private Validate() {
     }
 
@@ -32,11 +35,12 @@ public class Validate {
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
-    private static final String serverName
-            = "[-_a-zA-Z0-9]+{4,10}";
+    private static final String serverName = "[-_a-zA-Z0-9]+{4,10}";
 
-    private static final String portNumber
-            = "[0-9]+{4}";
+    private static final String email
+            = "(?:[-_a-zA-Z0-9]+@[-_a-zA-Z0-9]+\\\\.[a-z]{3}(?:,(?!$))?)+";
+
+    private static final String portNumber = "[0-9]+{4}";
 
     /**
      * Validate IP address with Regex.
@@ -46,7 +50,7 @@ public class Validate {
      * @param ipAddress ip address for validation
      * @return true valid ip address, false invalid ip address
      */
-    public synchronized boolean validateIP(final String ipAddress) {
+    public boolean validateIP(final String ipAddress) {
         ipPattern = Pattern.compile(Validate.ipAddress);
         matchIP = ipPattern.matcher(ipAddress);
         return matchIP.matches();
@@ -60,10 +64,24 @@ public class Validate {
      * @param serverName name of the server for validation
      * @return true valid name, false invalid name
      */
-    public synchronized boolean validateServerName(final String serverName) {
+    public boolean validateServerName(final String serverName) {
         serverPattern = Pattern.compile(Validate.serverName);
         matchServer = serverPattern.matcher(serverName);
         return matchServer.matches();
+    }
+
+    /**
+     * Validate email address with Regex.
+     * <br>
+     * Alphanumeric characters & max 3 characters after the dot.
+     *
+     * @param email name of the server for validation
+     * @return true valid email, false invalid email
+     */
+    public boolean validateEmailAddress(final String email) {
+        emailPattern = Pattern.compile(Validate.email);
+        matchEmail = emailPattern.matcher(email);
+        return matchEmail.matches();
     }
 
     /**
@@ -74,7 +92,7 @@ public class Validate {
      * @param portNumber name of the server for validation
      * @return true valid name, false invalid name
      */
-    public synchronized boolean validatePortNumber(final String portNumber) {
+    public boolean validatePortNumber(final String portNumber) {
         portPattern = Pattern.compile(Validate.portNumber);
         matchPort = portPattern.matcher(portNumber);
         return matchPort.matches();
