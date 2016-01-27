@@ -6,13 +6,14 @@ import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
+ * Custom made ExecutorService with AutoCloseable.
+ * <br> (can be used within a try-with-resources)
+ * <br>
  * based on farenda.com/java/java-auto-closeable-executor-service
  *
  * @author catalin.podariu@gmail.com
  */
 public class ACExecutorService implements AutoCloseable, ExecutorService {
-
-    private ExecutorService executor;
 
     public ACExecutorService(ExecutorService exec) {
         Objects.requireNonNull(exec, "ExecutorService must NOT be null!");
@@ -50,7 +51,7 @@ public class ACExecutorService implements AutoCloseable, ExecutorService {
 
     @Override
     public void close() {
-        System.out.println("Shutting down custom ACExecutor service.");
+        System.out.println("Shutting down custom ACExecutorService.");
         executor.shutdown();
     }
 
@@ -120,4 +121,7 @@ public class ACExecutorService implements AutoCloseable, ExecutorService {
             throws InterruptedException, ExecutionException, TimeoutException {
         return executor.invokeAny(tasks, timeout, unit);
     }
+    
+    private ExecutorService executor;
+
 }

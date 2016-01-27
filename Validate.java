@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Validate an IP address, or a port number or a user/server name.
+ * Validate an IP address or a port number or a user/server name.
  *
  * @author catalin.podariu@gmail.com
  */
@@ -59,7 +59,7 @@ public class Validate {
     /**
      * Validate serverName with Regex.
      * <br>
-     * Name must be at least 4 and max. 10 chars, alphanumerics + '-' and '_'
+     * Name must be at least 4 and max. 10 chars, alphanumerics '-' and '_'
      *
      * @param serverName name of the server for validation
      * @return true valid name, false invalid name

@@ -18,11 +18,6 @@ import java.util.concurrent.Future;
  */
 public class IPScanner {
 
-    private String[] hosts;
-    private ArrayList<String> aliveServers;
-    private ArrayList<Future> results;
-    private ExecutorService exec;
-
     private IPScanner() {
     }
 
@@ -92,6 +87,7 @@ public class IPScanner {
         // create an ArrayList of Future objects
         for (int i = 0; i < 255; i++) {
             status = exec.submit(
+                    // new thread for each IP scanned
                     new ScannerThread("192.168." + mask + "." + i, timeout));
             results.add(status);
         }
@@ -102,7 +98,7 @@ public class IPScanner {
             try {
                 if (item.get().toString().endsWith("alive")) {
                     /*
-                     if the item is alive, add to aliveServers strip 
+                     if the item is alive, add to aliveServers and strip 
                      the " is alive" from the end of String
                      */
                     aliveServers.add(item.get().toString().substring(
@@ -153,4 +149,9 @@ public class IPScanner {
             }
         }
     }
+    
+    private String[] hosts;
+    private ArrayList<String> aliveServers;
+    private ArrayList<Future> results;
+    private ExecutorService exec;
 }
