@@ -26,29 +26,29 @@ public class IPScanner {
     }
 
     public String[] backupScan(int pingTimeout) {
-        String localHost = "";
+        String temp = "";
+        String[] localhost = null;
         try {
             // get local IP address 
-            localHost = InetAddress.getLocalHost().toString();
+            temp = InetAddress.getLocalHost().toString();
+            // split the IP address into individual octets
+            localhost = temp.substring(temp.indexOf("/") + 1).split("[^\\d]");
         } catch (UnknownHostException ex) {
             System.err.println(ex);
         }
-        // strip the name before the IP (e.g. Nebuchadnezzar/192.168.0.101)
-        localHost = localHost.substring(localHost.indexOf("/") + 1);
-        // geting the 3rd octet of IP address
-        String mask = localHost.substring(localHost.indexOf('.') + 1,
-                localHost.lastIndexOf('.'))
-                .substring(localHost.indexOf('.') + 1);
-        int status = scanner(Integer.valueOf(mask), pingTimeout, 50);
-        // if there threads not interrupted 
+        // the 3rd octet of the IP address
+        int status = scanner(Integer.valueOf(localhost[2]), pingTimeout, 50);
+        // if there thread is not interrupted 
         if (status != -3) {
             if (aliveServers.isEmpty()) {
                 hosts = new String[1];
                 hosts[0] = "No alive servers..";
             } else {
                 hosts = new String[aliveServers.size()];
-                for (int i = 0; i < aliveServers.size(); i++) {
-                    hosts[i] = aliveServers.get(i);
+                for (String aliveIPAddress : aliveServers) {
+                    hosts[0] = temp.substring(0, temp.indexOf("/"));
+                    hosts[1] = aliveIPAddress;
+                    hosts[2] = "n/a";
                 }
             }
         } else {
@@ -87,7 +87,6 @@ public class IPScanner {
         // create an ArrayList of Future objects
         for (int i = 0; i < 255; i++) {
             status = exec.submit(
-                    // new thread for each IP scanned
                     new ScannerThread("192.168." + mask + "." + i, timeout));
             results.add(status);
         }
@@ -98,7 +97,7 @@ public class IPScanner {
             try {
                 if (item.get().toString().endsWith("alive")) {
                     /*
-                     if the item is alive, add to aliveServers and strip 
+                     if the item is alive, add to aliveServers strip 
                      the " is alive" from the end of String
                      */
                     aliveServers.add(item.get().toString().substring(
@@ -149,9 +148,10 @@ public class IPScanner {
             }
         }
     }
-    
+
     private String[] hosts;
     private ArrayList<String> aliveServers;
     private ArrayList<Future> results;
     private ExecutorService exec;
+
 }
