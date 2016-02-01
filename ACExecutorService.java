@@ -16,32 +16,49 @@ import java.util.concurrent.*;
 public class ACExecutorService implements AutoCloseable, ExecutorService {
 
     public ACExecutorService(ExecutorService exec) {
-        Objects.requireNonNull(exec, "ExecutorService must NOT be null!");
+        Objects.requireNonNull(exec, "ExecutorService MUST NOT be null!");
         this.executor = exec;
     }
 
     // static factory
-    public static ACExecutorService newCached() {
+    public static ACExecutorService newCachedPool() {
         System.out.println("Creating a new CachedThreadPool executor.");
         return new ACExecutorService(Executors.newCachedThreadPool());
     }
 
     // static factory
-    public static ACExecutorService newFixed(int nThreads) {
+    public static ACExecutorService newFixedPool(int nThreads) {
         System.out.println("Creating a new FixedThreadPool executor.");
         return new ACExecutorService(Executors.newFixedThreadPool(nThreads));
     }
 
     // static factory
-    public static ACExecutorService newScheduled(int corePoolSize) {
+    public static ACExecutorService newFixedPool(int nThreads,
+            ThreadFactory threadFactory) {
+        System.out.println("Creating a new FixedThreadPool executor.");
+        return new ACExecutorService(
+                Executors.newFixedThreadPool(nThreads, threadFactory));
+    }
+
+    // static factory
+    public static ACExecutorService newScheduledPool(int corePoolSize) {
         System.out.println("Creating a new ScheduledPool executor.");
-        return new ACExecutorService(Executors.newScheduledThreadPool(corePoolSize));
+        return new ACExecutorService(
+                Executors.newScheduledThreadPool(corePoolSize));
     }
 
     // static factory
     public static ACExecutorService newSingleThread() {
         System.out.println("Creating a new SingleThread executor.");
         return new ACExecutorService(Executors.newSingleThreadExecutor());
+    }
+
+    // static factory
+    public static ACExecutorService newSingleThread(
+            ThreadFactory threadFactory) {
+        System.out.println("Creating a new SingleThread executor.");
+        return new ACExecutorService(
+                Executors.newSingleThreadExecutor(threadFactory));
     }
 
     @Override
@@ -51,7 +68,7 @@ public class ACExecutorService implements AutoCloseable, ExecutorService {
 
     @Override
     public void close() {
-        System.out.println("Shutting down custom ACExecutorService.");
+        System.out.println("Automatic shutdown on custom ACExecutorService.");
         executor.shutdown();
     }
 
@@ -97,13 +114,15 @@ public class ACExecutorService implements AutoCloseable, ExecutorService {
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+    public <T> List<Future<T>> invokeAll(
+            Collection<? extends Callable<T>> tasks)
             throws InterruptedException {
         return executor.invokeAll(tasks);
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
+    public <T> List<Future<T>> invokeAll(
+            Collection<? extends Callable<T>> tasks,
             long timeout, TimeUnit unit)
             throws InterruptedException {
         return executor.invokeAll(tasks, timeout, unit);
@@ -116,12 +135,13 @@ public class ACExecutorService implements AutoCloseable, ExecutorService {
     }
 
     @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
+    public <T> T invokeAny(
+            Collection<? extends Callable<T>> tasks,
             long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         return executor.invokeAny(tasks, timeout, unit);
     }
-    
+
     private ExecutorService executor;
 
 }
