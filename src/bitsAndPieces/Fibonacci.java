@@ -18,18 +18,20 @@ public class Fibonacci {
 	}
 
 	public void launch(int givenNumber) {
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		Future<Long> result = (Future<Long>) executor.submit(new Nacci(givenNumber));
-		System.out.println("## Calculation started! ##");
-		int secondsPassed = 0;
-		while (true) {
-			if (result.isDone()) {
-				getResult(result, secondsPassed);
-				break;
-			} else {
-				secondsPassed = feedback(secondsPassed);
+		try (ACExecutorService executor = ACExecutorService.newSingleThread();) {
+			Future<Long> result = (Future<Long>) executor.submit(new Nacci(givenNumber));
+			System.out.println("## Calculation started! ##");
+			int secondsPassed = 0;
+			while (true) {
+				if (result.isDone()) {
+					getResult(result, secondsPassed);
+					break;
+				} else {
+					secondsPassed = feedback(secondsPassed);
+				}
 			}
 		}
+
 	}
 
 	private void getResult(Future<Long> result, int secondsPassed) {
