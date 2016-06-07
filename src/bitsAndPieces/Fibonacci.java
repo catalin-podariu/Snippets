@@ -18,43 +18,53 @@ public class Fibonacci {
 	}
 
 	public void launch(int givenNumber) {
+
 		try (ACExecutorService executor = ACExecutorService.newSingleThread();) {
-			for (int fib = 1; fib < givenNumber; fib++) {
-				result = (Future<Long>) executor.submit(new Nacci(fib));
-				if (fib == 1) {
+			for (int currentNumber = 1; currentNumber < givenNumber; currentNumber++) {
+				// assign the 'promise of a result' to a future object
+				result = (Future<Long>) executor.submit(new Nacci(currentNumber));
+				if (currentNumber == 1) {
 					System.out.println("## Calculation started! ##");
 				}
 				long timePassed = System.currentTimeMillis();
-				while (true) {
-					if (result.isDone()) {
-						getResult(result, timePassed);
-						break;
-					} else {
-						waitOneSecond();
-					}
+				/*
+				 * Up to this point everything returns immediately, then waits
+				 * for the future "result" to finish and prints the number.
+				 */
+				loopAndWaitForFeedbackOrResult(timePassed, currentNumber);
+			}
+		} // using a custom class that implements AutoCloseable and ExecutorService
+
+	}
+
+	private void loopAndWaitForFeedbackOrResult(long timePassed, int currentNumber) {
+		while (true) {
+			if (result.isDone()) {
+				// if done, get and display result
+				getResult(result, timePassed, currentNumber);
+				break;
+			} else {
+				try {
+					// feedback that it's still working..
+					System.out.print(".");
+					Thread.sleep(1000);
+				} catch (InterruptedException ex) {
+					System.err.println(ex);
 				}
 			}
 		}
-
 	}
 
-	private void getResult(Future<Long> result, long timePassed) {
+	private void getResult(Future<Long> result, long timePassed, int currentNumber) {
 		try {
+			// get the 'time' again and subtract the timePassed from it
 			long now = System.currentTimeMillis();
-			double duration = (now - timePassed) / 1000;
+			long duration = (now - timePassed) / 1000;
 
-			System.out.println("\nThe result is: " //
+			System.out.println("\nThe result for " + currentNumber + " is: " //
 					+ result.get().toString() + "\nCalculation took: " //
 					+ duration + " seconds.");
 		} catch (InterruptedException | ExecutionException ex) {
-			System.err.println(ex);
-		}
-	}
-
-	private void waitOneSecond() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException ex) {
 			System.err.println(ex);
 		}
 	}
@@ -70,6 +80,7 @@ class Nacci implements Callable<Long> {
 
 	@Override
 	public Long call() {
+		// the 'result' is assigned here
 		return sequence(number);
 	}
 
@@ -77,7 +88,7 @@ class Nacci implements Callable<Long> {
 		if (num <= 1) {
 			return num;
 		} else {
-			// the essence of all this
+			// the essence of all this code
 			return sequence(num - 1) + sequence(num - 2);
 		}
 	}
