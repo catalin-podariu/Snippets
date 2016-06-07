@@ -2,8 +2,6 @@ package bitsAndPieces;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -12,56 +10,53 @@ import java.util.concurrent.Future;
  */
 public class Fibonacci {
 
+	private Future<Long> result;
+
 	public static void main(String[] args) {
-		int numberToCalculate = 48;
+		int numberToCalculate = 47;
 		new Fibonacci().launch(numberToCalculate);
 	}
 
 	public void launch(int givenNumber) {
 		try (ACExecutorService executor = ACExecutorService.newSingleThread();) {
-			Future<Long> result = (Future<Long>) executor.submit(new Nacci(givenNumber));
-			System.out.println("## Calculation started! ##");
-			int secondsPassed = 0;
-			while (true) {
-				if (result.isDone()) {
-					getResult(result, secondsPassed);
-					break;
-				} else {
-					secondsPassed = feedback(secondsPassed);
+			for (int fib = 1; fib < givenNumber; fib++) {
+				result = (Future<Long>) executor.submit(new Nacci(fib));
+				if (fib == 1) {
+					System.out.println("## Calculation started! ##");
+				}
+				long timePassed = System.currentTimeMillis();
+				while (true) {
+					if (result.isDone()) {
+						getResult(result, timePassed);
+						break;
+					} else {
+						waitOneSecond();
+					}
 				}
 			}
 		}
 
 	}
 
-	private void getResult(Future<Long> result, int secondsPassed) {
+	private void getResult(Future<Long> result, long timePassed) {
 		try {
+			long now = System.currentTimeMillis();
+			double duration = (now - timePassed) / 1000;
+
 			System.out.println("\nThe result is: " //
 					+ result.get().toString() + "\nCalculation took: " //
-					+ secondsPassed + " seconds.");
+					+ duration + " seconds.");
 		} catch (InterruptedException | ExecutionException ex) {
 			System.err.println(ex);
 		}
 	}
 
-	private int feedback(int secondsPassed) {
+	private void waitOneSecond() {
 		try {
-			if (secondsPassed == 0) {
-				System.out.print("Waiting");
-				secondsPassed++;
-			} else if (secondsPassed > 0) {
-				System.out.print(".");
-				secondsPassed++;
-				if (secondsPassed % 10 == 0) {
-					System.out.print("\n" + secondsPassed //
-							+ " seconds have passed. \nStill waiting...");
-				}
-			}
 			Thread.sleep(1000);
 		} catch (InterruptedException ex) {
 			System.err.println(ex);
 		}
-		return secondsPassed;
 	}
 }
 
