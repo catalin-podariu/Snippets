@@ -1,6 +1,7 @@
-package factories;
+package bitsAndPieces;
 
 /**
+ * Example of factory design pattern.
  * 
  * @author catalin.podariu@gmail.com
  */
@@ -14,16 +15,16 @@ public class God {
 		/**
 		 * Most readable object creation known to java. And me.
 		 */
-		Tree tinyTree = TreeFactory.createTree()
-								.withColor("Green")
-								.withBranches(300)
-								.withShape("Weird Shape, that's for sure..")
-								.build();
+		Tree tinyTree = TreeFactory.createTree() //
+				.withColor("Green")//
+				.withBranches(300)//
+				.withShape("Weird Shape, that's for sure..")//
+				.build();//
 		tinyTree.tellTheWorld();
 
-		System.out.println("Verify: \n"
-				+ "branches " + tinyTree.getBranchNumber()
-				+ "\ncolor " + tinyTree.getColor()
+		System.out.println("Verify: \n"//
+				+ "branches " + tinyTree.getBranchNumber()//
+				+ "\ncolor " + tinyTree.getColor()//
 				+ "\nshape " + tinyTree.getShape());
 	}
 }
